@@ -1,8 +1,7 @@
 [features]
 seeds = false
 [programs.localnet]
-lab_lunch_dao = "9MM4PS44D5KZEVa1ruVuW14B5kbcupm2QXP1Gjfm3V7P"
-
+lab_lunch_dao = "HtZAJbfvjxWGgMSQh9Aht28sPNX1EC5jsGoeoq9DDqkA"
 
 [registry]
 url = "https://anchor.projectserum.com"
