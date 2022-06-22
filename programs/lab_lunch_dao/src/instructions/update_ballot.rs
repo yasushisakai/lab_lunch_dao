@@ -3,7 +3,7 @@ use crate::model::{Group, Topic, Ballot};
 
 #[derive(Accounts)]
 pub struct UpdateBallot <'info> {
-    #[account(mut, has_one=owner)]
+    #[account(mut, seeds=[b"ballot", owner.key().as_ref(), topic.key().as_ref()], bump=ballot.bump)]
     pub ballot : Account<'info, Ballot>,
     pub owner : Signer<'info>,
     pub group : Account<'info, Group>,

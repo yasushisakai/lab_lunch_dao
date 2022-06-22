@@ -3,7 +3,13 @@ use crate::model::{Group, Topic, Ballot};
 
 #[derive(Accounts)]
 pub struct Vote <'info> {
-    #[account(init, payer=voter, space=Ballot::SIZE)]
+    #[account(
+        init, 
+        payer=voter, 
+        space=Ballot::SIZE,
+        seeds=[b"ballot", voter.key().as_ref(), topic.key().as_ref()],
+        bump
+    )]
     pub ballot : Account<'info, Ballot>,
     #[account(mut)]    
     pub voter : Signer<'info>,
@@ -23,8 +29,9 @@ pub fn handle(ctx: Context<Vote>, votes: Vec<bool>) -> Result<()> {
     require!(group.members.iter().any(|k|k == voter.key), VoterNotMember);
     require!(topic.options.len() == votes.len(), OptionVotesMismatch);
     ballot.approvals = votes;
-    ballot.owner = voter.key();
     ballot.topic = topic.key();
+    // I trust anchor people...
+    ballot.bump = *ctx.bumps.get("ballot").unwrap();
     topic.vote_num += 1;
     Ok(())
 }

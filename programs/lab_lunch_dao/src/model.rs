@@ -1,4 +1,4 @@
-use anchor_lang::prelude::*;
+ use anchor_lang::prelude::*;
 
 #[account]
 pub struct Group {
@@ -16,15 +16,18 @@ pub trait PubkeyOptions{
     fn options(&self) -> Vec<Pubkey>;
 }
 
+// should this be a PDA?
+// a group doesn't need more than one CaterList
 #[account]
 pub struct CaterList {
     pub caters: Vec<Pubkey>,
-    pub authority: Pubkey
+    pub authority: Pubkey,
+    pub bump: u8
 }
 
 impl CaterList {
     pub const MAX_CATER_NUM: usize = Topic::MAX_OPTION_NUM;
-    pub const SIZE: usize = 8 + 4 + CaterList::MAX_CATER_NUM * 32 + 32;
+    pub const SIZE: usize = 8 + 4 + CaterList::MAX_CATER_NUM * 32 + 32 + 1;
 
     pub fn push_cater(&mut self, cater_id: &Pubkey) -> Result<()> {
         // needs to be unique
@@ -44,16 +47,20 @@ impl PubkeyOptions for CaterList {
 
 #[account]
 pub struct CaterItem {
+    pub cater_list: Pubkey,
     pub name: String,
     pub menus: Vec<Pubkey>,
+    pub bump: u8
 }
 
 impl CaterItem {
     pub const MAX_CATER_NAME_LENGTH: usize = 64;
     pub const MAX_CATER_MENU_NUM: usize = Topic::MAX_OPTION_NUM;
     pub const SIZE: usize = 8 +
+    32 + // list
     4 + CaterItem::MAX_CATER_NAME_LENGTH * 4 + // utf-8 may use a maximum of 4 bytes
-    4 + CaterItem::MAX_CATER_MENU_NUM * 32;
+    4 + CaterItem::MAX_CATER_MENU_NUM * 32 +
+    1;
 
     pub fn push_menu(&mut self, menu_item: &Pubkey) -> Result<()> {
         require!(!self.menus.iter().any(|k| k == menu_item), NoDuplicateAllowed);
@@ -71,14 +78,16 @@ impl PubkeyOptions for CaterItem {
 
 #[account]
 pub struct MenuItem {
+    pub cater: Pubkey,
     pub name: String,
     pub foot_print: f32,
-    pub cost: f32 //USD
+    pub cost: f32,  //USD
+    pub bump: u8
 }
 
 impl MenuItem {
     pub const MAX_MENU_ITEM_NAME_LENGTH: usize = 64;
-    pub const SIZE: usize = 8 + 4 + MenuItem::MAX_MENU_ITEM_NAME_LENGTH * 4 + 4 + 4;
+    pub const SIZE: usize = 8 + 32 + 4 + MenuItem::MAX_MENU_ITEM_NAME_LENGTH * 4 + 4 + 4 + 1;
 }
 
 // the topic is agnositic to the the cater list
@@ -115,21 +124,21 @@ impl Topic {
 
 #[account]
 pub struct FinalizedTopic{
-    pub topic: Pubkey,
-    pub votes: Vec<u8>
+    pub votes: Vec<u8>,
+    pub bump: u8
 }
 
 impl FinalizedTopic {
-    pub const SIZE: usize = 8 + 32 + 4 + Topic::MAX_OPTION_NUM;
+    pub const SIZE: usize = 8 + 4 + Topic::MAX_OPTION_NUM + 1;
 }
 
 #[account]
 pub struct Ballot{
     pub topic: Pubkey,
-    pub owner: Pubkey, 
-    pub approvals: Vec<bool>
+    pub approvals: Vec<bool>,
+    pub bump: u8
 }
 
 impl Ballot {
-    pub const SIZE: usize = 8 + 32 + 32 + 4 + Topic::MAX_OPTION_NUM;
+    pub const SIZE: usize = 8 + 32 + 32 + 4 + Topic::MAX_OPTION_NUM + 1;
 }

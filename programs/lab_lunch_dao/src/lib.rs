@@ -31,7 +31,7 @@ pub mod lab_lunch_dao {
     }
 
     pub fn push_cater(ctx: Context<PushCater>, name: String) -> Result<()> {
-        push_cater::handle(ctx, &name)
+        push_cater::handle(ctx, name)
     }
 
     pub fn push_menu(
@@ -40,7 +40,7 @@ pub mod lab_lunch_dao {
         foot_print: f32,
         cost: f32,
     ) -> Result<()> {
-        push_menu::handle(ctx, &name, foot_print, cost)
+        push_menu::handle(ctx, name, foot_print, cost)
     }
 
     pub fn create_lunch_topic(
