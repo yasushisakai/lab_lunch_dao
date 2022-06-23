@@ -1,10 +1,10 @@
 use anchor_lang::prelude::*;
-use crate::model::{CaterItem, CaterList};
+use crate::model::{CaterItem, CaterList, Group};
 
 #[derive(Accounts)]
 #[instruction(name: String)]
 pub struct PushCater <'info> {
-    #[account(mut)]
+    #[account(mut, seeds=[b"cater_list", group.key().as_ref()], bump=cater_list.bump)]
     cater_list: Account<'info, CaterList>,
     #[account(
         init, 
@@ -14,6 +14,7 @@ pub struct PushCater <'info> {
         bump
     )]
     cater: Account<'info, CaterItem>,
+    group: Account<'info, Group>,
     #[account(mut)]
     owner: Signer<'info>,
     system_program: Program<'info, System>

@@ -29,8 +29,8 @@ pub fn handle(ctx: Context<FinalizeTopic>) -> Result<()> {
     let result = &mut ctx.accounts.result;
 
     result.votes.resize(topic.options.len(), 0u8);
-
     // FIXME: this relies on the client to provide the 'right' ballots
+    require!(topic.vote_num == ctx.remaining_accounts.len() as u8, OptionVotesMismatch);
     for a in ctx.remaining_accounts {
         let ballot:Account<Ballot> =  Account::try_from(a)?;
         for (i ,v) in ballot.approvals.iter().enumerate() {

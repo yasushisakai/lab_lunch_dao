@@ -27,9 +27,7 @@ describe("group", () => {
       newPublicKeys.push(anchor.web3.Keypair.generate().publicKey);
     }
 
-    await program
-      .methods
-      .addMembersToGroup(newPublicKeys)
+    await program.methods.addMembersToGroup(newPublicKeys)
       .accounts({ group: group.publicKey, owner: owner.publicKey })
       .signers([owner]).rpc()
 
@@ -37,9 +35,7 @@ describe("group", () => {
     assert.equal(groupAccount.members.length, newMemberNum + 1);
     assert.equal(groupAccount.seqNo.toNumber(), 1);
 
-    await program
-      .methods
-      .updateQuorum(3)
+    await program.methods.updateQuorum(3)
       .accounts({ group: group.publicKey, owner: owner.publicKey })
       .signers([owner]).rpc()
 

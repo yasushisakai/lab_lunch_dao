@@ -27,5 +27,6 @@ pub fn handle(ctx: Context<PushMenu>, name: String, foot_print: f32, cost: f32) 
     menu.bump = *ctx.bumps.get("menu").unwrap();
     let cater = &mut ctx.accounts.cater;
     cater.push_menu(&menu.key())?;
+    menu.cater = cater.key();
     Ok(())
 }
