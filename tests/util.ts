@@ -26,16 +26,19 @@ export const createUser = async (
 }
 
 export const initGroup = async (
+    name: string,
     program: Program<LabLunchDao>,
-    owner: anchor.web3.Keypair): Promise<anchor.web3.Keypair> => {
-    const key = newKeyPair();
-    await program.methods.initGroup().accounts({
-        group: key.publicKey,
+    owner: anchor.web3.Keypair): Promise<anchor.web3.PublicKey> => {
+
+    const [group, _] = await findAddress([stringToBytes("group"), stringToBytes(name)]);
+
+    await program.methods.initGroup(name).accounts({
+        group,
         owner: owner.publicKey,
-    }).signers([key, owner])
+    }).signers([owner])
         .rpc();
 
-    return key;
+    return group;
 }
 
 export const batchAddCater = async (
@@ -79,4 +82,27 @@ export const aggregateResult = (options: anchor.web3.PublicKey[], votes: number[
     });
 
     return Object.entries(voteNumbers).sort((a, b) => a[0] < b[0] ? 1 : -1).map(v => v[1]);
+}
+
+export const vote = async (
+    voter: anchor.web3.Keypair, 
+    group: anchor.web3.PublicKey, 
+    topic: anchor.web3.PublicKey, 
+    ballot: boolean[], 
+    program: Program<LabLunchDao>) => {
+    let [ballotAddress, _] = await findAddress(
+        [
+            stringToBytes("ballot"),
+            voter.publicKey.toBuffer(),
+            topic.toBuffer()
+        ]);
+
+    await program.methods.vote(ballot)
+        .accounts({
+            ballot: ballotAddress,
+            group,
+            topic,
+            voter: voter.publicKey
+        }).signers([voter]).rpc()
+    return ballotAddress
 }

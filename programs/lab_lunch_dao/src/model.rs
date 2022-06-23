@@ -2,14 +2,22 @@
 
 #[account]
 pub struct Group {
+    pub name: String,
     pub members: Vec<Pubkey>,
     pub seq_no: u64,
     pub quorum: u8,
+    pub bump: u8
 }
 
 impl Group {
+    pub const MAX_GROUP_NAME_LENGTH:usize = 32;
     pub const MAX_GROUP_MEMBERS:usize = 64;
-    pub const SIZE: usize = 8 + 4 + Group::MAX_GROUP_MEMBERS * 32 + 8 + 1;
+    pub const SIZE: usize = 8 + 
+    4 + Group::MAX_GROUP_NAME_LENGTH * 4 + 
+    4 + Group::MAX_GROUP_MEMBERS * 32 +
+    8 + 
+    1 +
+    1;
 }
 
 pub trait PubkeyOptions{

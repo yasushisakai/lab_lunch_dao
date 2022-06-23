@@ -1,17 +1,17 @@
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
 import { LabLunchDao } from "../target/types/lab_lunch_dao";
-import { initGroup, createUser, newKeyPair, stringToBytes, findAddress, batchAddCater, sleep, aggregateResult } from "./util";
+import { initGroup, createUser, newKeyPair, stringToBytes, findAddress, batchAddCater, sleep, aggregateResult, vote } from "./util";
 import caters from "./caters.json";
 import { BN } from "bn.js";
 import { assert } from "chai";
 
-describe("creates a the two polls in discussion", () => {
+describe("people votes for a topic", () => {
     anchor.setProvider(anchor.AnchorProvider.env());
     const program = anchor.workspace.LabLunchDao as Program<LabLunchDao>;
 
     let owner: anchor.web3.Keypair;
-    let group: anchor.web3.Keypair;
+    let group: anchor.web3.PublicKey;
     let memberKeyPairs: anchor.web3.Keypair[] = [];
     let list: anchor.web3.PublicKey;
     let caterMenuList;
@@ -21,8 +21,8 @@ describe("creates a the two polls in discussion", () => {
 
     before(async () => {
         owner = await createUser(program);
-        group = await initGroup(program, owner);
-        let findList = await findAddress([stringToBytes("cater_list"), group.publicKey.toBuffer()])
+        group = await initGroup("votable", program, owner);
+        let findList = await findAddress([stringToBytes("cater_list"), group.toBuffer()])
         list = findList[0];
 
         const newMemberNum = 10;
@@ -35,23 +35,23 @@ describe("creates a the two polls in discussion", () => {
         memberKeyPairs = await Promise.all(richPeople);
 
         await program.methods.addMembersToGroup(memberKeyPairs.map(k => k.publicKey))
-            .accounts({ group: group.publicKey, owner: owner.publicKey })
+            .accounts({ group, owner: owner.publicKey })
             .signers([owner]).rpc()
 
         await program.methods.updateQuorum(3).accounts({
-            group: group.publicKey,
+            group,
             owner: owner.publicKey
         }).signers([owner]).rpc();
 
         await program.methods.initCaterList().accounts({
             list,
-            group: group.publicKey,
+            group: group,
             owner: owner.publicKey
         })
             .signers([owner])
             .rpc();
 
-        caterMenuList = await Promise.all(caters.map(c => batchAddCater(c, owner, list, group.publicKey, program)))
+        caterMenuList = await Promise.all(caters.map(c => batchAddCater(c, owner, list, group, program)))
     });
 
     beforeEach(async () => {
@@ -66,29 +66,21 @@ describe("creates a the two polls in discussion", () => {
             topic: topic.publicKey,
             owner: owner.publicKey,
             caterList: list,
-            group: group.publicKey,
+            group,
         }).signers([owner, topic]).rpc();
 
         let ballots: anchor.web3.PublicKey[] = []
 
         for (let i = 0; i < 3; i++) {
 
-            let [ballot, _] = await findAddress(
-                [
-                    stringToBytes("ballot"),
-                    memberKeyPairs[i].publicKey.toBuffer(),
-                    topic.publicKey.toBuffer()
-                ]);
-
-            ballots.push(ballot);
-
-            await program.methods.vote([true, false, false])
-                .accounts({
-                    ballot,
-                    group: group.publicKey,
-                    topic: topic.publicKey,
-                    voter: memberKeyPairs[i].publicKey
-                }).signers([memberKeyPairs[i]]).rpc()
+            let ballot = await vote(
+                memberKeyPairs[i], 
+                group, 
+                topic.publicKey, 
+                [true, false, false], 
+                program);
+            
+            ballots.push(ballot)
         }
 
         await sleep(4000);
@@ -97,7 +89,7 @@ describe("creates a the two polls in discussion", () => {
         await program.methods.finalizeTopic().accounts({
             topic: topic.publicKey,
             result,
-            group: group.publicKey,
+            group,
             payer: owner.publicKey,
         })
             .signers([owner])

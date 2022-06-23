@@ -7,18 +7,20 @@ import { initGroup, createUser } from "./util";
 describe("group", () => {
   anchor.setProvider(anchor.AnchorProvider.env());
   const program = anchor.workspace.LabLunchDao as Program<LabLunchDao>;
+  let owner: anchor.web3.Keypair;
+
+  before(async ()=>{
+    owner = await createUser(program);
+  })
 
   it("inits", async () => {
-    // const owner = (program.provider as anchor.AnchorProvider).wallet.publicKey;
-    const owner = await createUser(program);
-    const group = await initGroup(program, owner);
-    const groupAccount = await program.account.group.fetch(group.publicKey);
+    const group = await initGroup("groupName", program, owner);
+    const groupAccount = await program.account.group.fetch(group);
     assert.equal(groupAccount.members[0].toBase58(), owner.publicKey.toBase58());
   });
 
   it("add members and update quorum", async () => {
-    const owner = await createUser(program);
-    const group = await initGroup(program, owner);
+    const group = await initGroup("newGroup",program, owner);
 
     const newMemberNum = 10;
 
@@ -28,18 +30,18 @@ describe("group", () => {
     }
 
     await program.methods.addMembersToGroup(newPublicKeys)
-      .accounts({ group: group.publicKey, owner: owner.publicKey })
+      .accounts({ group, owner: owner.publicKey })
       .signers([owner]).rpc()
 
-    let groupAccount = await program.account.group.fetch(group.publicKey);
+    let groupAccount = await program.account.group.fetch(group);
     assert.equal(groupAccount.members.length, newMemberNum + 1);
     assert.equal(groupAccount.seqNo.toNumber(), 1);
 
     await program.methods.updateQuorum(3)
-      .accounts({ group: group.publicKey, owner: owner.publicKey })
+      .accounts({ group, owner: owner.publicKey })
       .signers([owner]).rpc()
 
-    groupAccount = await program.account.group.fetch(group.publicKey);
+    groupAccount = await program.account.group.fetch(group);
     assert.equal(groupAccount.quorum, 3);
 
   });

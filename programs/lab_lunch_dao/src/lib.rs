@@ -11,8 +11,8 @@ declare_id!("HtZAJbfvjxWGgMSQh9Aht28sPNX1EC5jsGoeoq9DDqkA");
 pub mod lab_lunch_dao {
     use super::*;
 
-    pub fn init_group(ctx: Context<InitGroup>) -> Result<()> {
-        init_group::handler(ctx)
+    pub fn init_group(ctx: Context<InitGroup>, name: String) -> Result<()> {
+        init_group::handler(ctx, name)
     }
 
     pub fn add_members_to_group(

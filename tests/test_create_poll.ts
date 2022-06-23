@@ -6,12 +6,12 @@ import caters from "./caters.json";
 import { BN } from "bn.js";
 import { assert } from "chai";
 
-describe("creates a the two polls in discussion", () => {
+describe("creates the two polls in discussion", () => {
     anchor.setProvider(anchor.AnchorProvider.env());
     const program = anchor.workspace.LabLunchDao as Program<LabLunchDao>;
 
     let owner: anchor.web3.Keypair;
-    let group: anchor.web3.Keypair;
+    let group: anchor.web3.PublicKey;
     let list: anchor.web3.PublicKey;
     let caterMenuList;
     let now;
@@ -20,19 +20,19 @@ describe("creates a the two polls in discussion", () => {
 
     before(async () => {
         owner = await createUser(program);
-        group = await initGroup(program, owner);
-        let findList = await findAddress([stringToBytes("cater_list"), group.publicKey.toBuffer()])
+        group = await initGroup("testTopicGroup", program, owner);
+        let findList = await findAddress([stringToBytes("cater_list"), group.toBuffer()])
         list = findList[0];
 
         await program.methods.initCaterList().accounts({
             list,
-            group: group.publicKey,
+            group,
             owner: owner.publicKey
         })
             .signers([owner])
             .rpc();
 
-        caterMenuList = await Promise.all(caters.map(c => batchAddCater(c, owner, list, group.publicKey, program)))
+        caterMenuList = await Promise.all(caters.map(c => batchAddCater(c, owner, list, group, program)))
     });
 
     beforeEach(async ()=> {
@@ -46,7 +46,7 @@ describe("creates a the two polls in discussion", () => {
             topic: topic.publicKey,
             owner: owner.publicKey,
             caterList: list,
-            group: group.publicKey,
+            group,
         }).signers([owner, topic]).rpc();
 
         const topicAccount = await program.account.topic.fetch(topic.publicKey);
@@ -61,7 +61,7 @@ describe("creates a the two polls in discussion", () => {
             topic: topic.publicKey,
             owner: owner.publicKey,
             cater,
-            group: group.publicKey,
+            group,
         }).signers([owner, topic]).rpc();
 
         const topicAccount = await program.account.topic.fetch(topic.publicKey);
