@@ -57,16 +57,19 @@ impl PubkeyOptions for CaterList {
 pub struct CaterItem {
     pub cater_list: Pubkey,
     pub name: String,
+    pub url: String,
     pub menus: Vec<Pubkey>,
     pub bump: u8
 }
 
 impl CaterItem {
     pub const MAX_CATER_NAME_LENGTH: usize = 64;
+    pub const MAX_CATER_URL_LENGTH: usize = 128;
     pub const MAX_CATER_MENU_NUM: usize = Topic::MAX_OPTION_NUM;
     pub const SIZE: usize = 8 +
     32 + // list
     4 + CaterItem::MAX_CATER_NAME_LENGTH * 4 + // utf-8 may use a maximum of 4 bytes
+    4 + CaterItem::MAX_CATER_URL_LENGTH + // ascii
     4 + CaterItem::MAX_CATER_MENU_NUM * 32 +
     1;
 
@@ -143,6 +146,7 @@ impl FinalizedTopic {
 #[account]
 pub struct Ballot{
     pub topic: Pubkey,
+    pub voter: Pubkey,
     pub approvals: Vec<bool>,
     pub bump: u8
 }

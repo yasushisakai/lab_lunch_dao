@@ -1,13 +1,17 @@
 [features]
 seeds = false
+
 [programs.localnet]
+lab_lunch_dao = "HtZAJbfvjxWGgMSQh9Aht28sPNX1EC5jsGoeoq9DDqkA"
+
+[programs.devnet]
 lab_lunch_dao = "HtZAJbfvjxWGgMSQh9Aht28sPNX1EC5jsGoeoq9DDqkA"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "/home/yasushi/.config/solana/id.json"
 
 [scripts]

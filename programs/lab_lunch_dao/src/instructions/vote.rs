@@ -30,6 +30,7 @@ pub fn handle(ctx: Context<Vote>, votes: Vec<bool>) -> Result<()> {
     require!(topic.options.len() == votes.len(), OptionVotesMismatch);
     ballot.approvals = votes;
     ballot.topic = topic.key();
+    ballot.voter = voter.key();
     // I trust anchor people...
     ballot.bump = *ctx.bumps.get("ballot").unwrap();
     topic.vote_num += 1;

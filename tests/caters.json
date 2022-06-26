@@ -1,6 +1,7 @@
 [
     {
         "name": "Fareast Italian",
+        "url": "https://www.google.com",
         "menu": [
             {
                 "name": "Straberry Crepe",
@@ -26,6 +27,7 @@
     },
     {
         "name": "Peruvian Seafood 'Nikkei'",
+        "url": "https://www.google.com",
         "menu": [
             {
                 "name": "Halapeno Mackerel",
@@ -51,6 +53,7 @@
     },   
     {
         "name": "Backwards Beef",
+        "url": "https://www.google.com",
         "menu": [
             {
                 "name": "Ribeye Steak",

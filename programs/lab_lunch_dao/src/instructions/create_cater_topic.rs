@@ -18,8 +18,8 @@ pub fn handle(ctx: Context<CreateCaterTopic>, vote_due: i64) -> Result<()>{
     let cater_list = &ctx.accounts.cater_list;
 
     topic.options = cater_list.options();
-    topic.name = "Cater Poll".to_string();
-    topic.description = "decide which cater to use".to_string();
+    topic.name = "Choose Caters".to_string();
+    topic.description = "decide which cater to use next time".to_string();
     topic.vote_due = vote_due;
     topic.group = group.key();
     topic.seq_no = group.seq_no;

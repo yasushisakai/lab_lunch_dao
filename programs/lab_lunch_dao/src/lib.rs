@@ -30,8 +30,8 @@ pub mod lab_lunch_dao {
         init_cater_list::handler(ctx)
     }
 
-    pub fn push_cater(ctx: Context<PushCater>, name: String) -> Result<()> {
-        push_cater::handle(ctx, name)
+    pub fn push_cater(ctx: Context<PushCater>, name: String, url: String) -> Result<()> {
+        push_cater::handle(ctx, name, url)
     }
 
     pub fn push_menu(

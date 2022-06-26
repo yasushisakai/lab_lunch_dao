@@ -18,7 +18,7 @@ pub fn handle(ctx: Context<CreateLunchTopic>, vote_due: i64, when: String ) -> R
     let cater = &ctx.accounts.cater;
 
     topic.options = cater.options();
-    topic.name=format!("vote for {} lunch", &when);
+    topic.name=format!("Lunch Vote ({})", &when);
     topic.description = format!("select menu item from {}", cater.name);
     topic.vote_due = vote_due;
     topic.group = group.key();

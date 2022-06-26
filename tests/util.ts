@@ -50,7 +50,7 @@ export const batchAddCater = async (
     const [cater, _cBump] = await findAddress([stringToBytes("cater"), list.toBuffer(), stringToBytes(caterInfo.name)]);
     const findAddresses = await Promise.all(caterInfo.menu.map(m => findAddress([stringToBytes("menu"), cater.toBuffer(), stringToBytes(m.name)])));
     const menu = findAddresses.map(([a, _b]) => a)
-    await program.methods.pushCater(caterInfo.name).accounts({
+    await program.methods.pushCater(caterInfo.name, caterInfo.url).accounts({
         caterList: list,
         cater,
         group: group,
@@ -67,11 +67,11 @@ export const batchAddCater = async (
     return { cater, menu }
 };
 
-export const sleep = ms => new Promise(r => setTimeout(r, ms));
+export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
 export const aggregateResult = (options: anchor.web3.PublicKey[], votes: number[]) => {
 
-    let voteNumbers = {};
+    let voteNumbers:{[index:number]:string[]} = {};
 
     options.map((k, i) => {
         const count = votes[i];

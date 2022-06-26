@@ -40,9 +40,10 @@ describe("caters and menus", () => {
         assert.equal(listAccount.bump, listBump);
 
         const caterName = "Delicious Palace";
+        const caterUrl = "https://google.com";
         const [cater, _cBump] = await findAddress([stringToBytes("cater"), list.toBuffer(), stringToBytes(caterName)]);
 
-        await program.methods.pushCater(caterName).accounts({
+        await program.methods.pushCater(caterName, caterUrl).accounts({
             caterList: list,
             cater,
             group,
